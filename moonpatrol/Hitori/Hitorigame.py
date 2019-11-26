@@ -40,7 +40,7 @@ def console_play(game: BoardGame):
 
 
 class HitoriGame(BoardGame):
-    def __init__(self, side=5, level=4):
+    def __init__(self, side=3, level=4):
         self._cols, self._rows = side, side
         self._board = [[random.randint(1, 9) for y in range(side)] for x in range(side)]
         self._board2 = [["CLEAR" for y in range(side)] for x in range(side)]
@@ -77,12 +77,21 @@ class HitoriGame(BoardGame):
                 if self._board2[x][y] != "BLACK":
 
                     for i in range(self._cols):
-                        if self._board[x][i] == val and self._board2[x][i] != "BLACK":
+                        if i != y and self._board[x][i] == val and self._board2[x][i] != "BLACK":
+                            print("cacca")
                             return False
                     for i in range(self._rows):
-                        if self._board[i][y] == val and self._board2[i][y] != "BLACK":
+
+                        if i != x and self._board[i][y] == val and self._board2[i][y] != "BLACK":
+                            print("pupu")
                             return False
-                cont = 0
+                if self._board2[x][y] == "BLACK":
+                    for dx, dy in ((0, 0), (0, -1), (1, 0),
+                                   (0, 1), (-1, 0)):
+                        if self._board2[x + dx][y + dy] == "BLACK":
+                            return False
+
+                '''cont = 0
                 confine = 0
                 for dx, dy in ((0, 0), (0, -1), (1, 0),
                                (0, 1), (-1, 0)):
@@ -93,8 +102,9 @@ class HitoriGame(BoardGame):
                     else:
                         confine += 1
                     if cont + confine == 4:
-                        return False
+                        return False'''
         return True
+        # return False
 
     def message(self) -> str:
         return "Puzzle solved!"

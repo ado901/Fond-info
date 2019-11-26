@@ -41,9 +41,9 @@ class BoardGameGui:
             for x in range(cols):
                 value = self._game.value_at(x, y)
                 center = x * W + W // 2, y * H + H // 2
-                x1,y2= center
+                x1, y2 = center
                 if value[-1] == "#":
-                    g2d.fill_rect((x1,y2, W // 2, H // 2))
+                    g2d.fill_rect((x1, y2, W // 2, H // 2))
                 if value[-1] == "!":
                     g2d.fill_circle(center, H // 2)
                 g2d.draw_text_centered(value[:-1], center, H // 2)
