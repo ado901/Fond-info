@@ -40,9 +40,15 @@ def console_play(game: BoardGame):
 
 
 class HitoriGame(BoardGame):
-    def __init__(self, side=3, level=4):
+    def __init__(self, side=8, level=4):
         self._cols, self._rows = side, side
-        self._board = [[random.randint(1, 9) for y in range(side)] for x in range(side)]
+        self._board = []
+        with open("matrice.txt") as myfile:
+            for i in myfile:
+                i = i.strip()
+                self._board.append(i.split(","))
+
+        # self._board = [[random.randint(1, 9) for y in range(side)] for x in range(side)]
         self._board2 = [["CLEAR" for y in range(side)] for x in range(side)]
 
     def cols(self) -> int:
@@ -53,58 +59,74 @@ class HitoriGame(BoardGame):
 
     def play_at(self, x: int, y: int):
         if 0 <= x < self._cols and 0 <= y < self._rows:
-            if self._board2[x][y] == "CLEAR" or self._board2[x][y] == "CIRCLE":
-                self._board2[x][y] = "BLACK"
+            if self._board2[y][x] == "CLEAR" or self._board2[y][x] == "CIRCLE":
+                self._board2[y][x] = "BLACK"
             else:
-                self._board2[x][y] = "CLEAR"
+                self._board2[y][x] = "CLEAR"
+            for i in self._board2:
+                print(i)
+            print()
 
     def flag_at(self, x: int, y: int):
-        if self._board2[x][y] == "CLEAR":
-            self._board2[x][y] = "CIRCLE"
+        if self._board2[y][x] == "CLEAR":
+            self._board2[y][x] = "CIRCLE"
 
     def value_at(self, x: int, y: int) -> str:
         if 0 <= x < self._cols and 0 <= y < self._rows:
-            if self._board2[x][y] == "BLACK":
-                return str(self._board[x][y]) + '#'
-            elif self._board2[x][y] == "CIRCLE":
-                return str(self._board[x][y]) + "!"
-        return str(self._board[x][y]) + ' '
+            if self._board2[y][x] == "BLACK":
+                return str(self._board[y][x]) + '#'
+            elif self._board2[y][x] == "CIRCLE":
+                return str(self._board[y][x]) + "!"
+        return str(self._board[y][x]) + ' '
+
+    def checkcontinuity(self, y, x, matrice):
+        count = 1
+        print(self._board[y][x], end=' ')
+        for dx, dy in ((0, -1), (1, 0),
+                       (0, 1), (-1, 0)):
+            x1, y1= x+dx, y+dy
+            if 0 <= x1 < self._cols and 0 <= y1 < self._rows:
+
+                if self._board2[y1][x1] != "BLACK" and not matrice[y1][x1]:
+                    print(self._board[y1][x1], y1, x1)
+                    matrice[y1][x1] = True
+                    count += self.checkcontinuity(y1, x1, matrice)
+        return count
 
     def finished(self) -> bool:
+        totale=0
         for y in range(self._rows):
             for x in range(self._cols):
-                val = self._board[x][y]
-                if self._board2[x][y] != "BLACK":
-
+                val = self._board[y][x]
+                if self._board2[y][x] != "BLACK":
+                    totale+=1
                     for i in range(self._cols):
-                        if i != y and self._board[x][i] == val and self._board2[x][i] != "BLACK":
-                            print("cacca")
+                        if i != x and self._board[y][i] == val and self._board2[y][i] != "BLACK":
                             return False
                     for i in range(self._rows):
 
-                        if i != x and self._board[i][y] == val and self._board2[i][y] != "BLACK":
-                            print("pupu")
-                            return False
-                if self._board2[x][y] == "BLACK":
-                    for dx, dy in ((0, 0), (0, -1), (1, 0),
-                                   (0, 1), (-1, 0)):
-                        if self._board2[x + dx][y + dy] == "BLACK":
+                        if i != y and self._board[i][x] == val and self._board2[i][x] != "BLACK":
                             return False
 
-                '''cont = 0
-                confine = 0
-                for dx, dy in ((0, 0), (0, -1), (1, 0),
-                               (0, 1), (-1, 0)):
-                    x1, y1 = x + dx, y + dy
-                    if 0 <= x1 < self._cols and 0 <= y1 < self._rows:
-                        if self._board2[x1][y1] == "BLACK":
-                            cont += 1
-                    else:
-                        confine += 1
-                    if cont + confine == 4:
-                        return False'''
+                if self._board2[y][x] == "BLACK":
+                    for dx, dy in ((0, -1), (1, 0),
+                                   (0, 1), (-1, 0)):
+                        if 0 <= x + dx < self._cols and 0 <= y + dy < self._rows:
+                            if self._board2[y + dy][x + dx] == "BLACK":
+                                return False
+        matrice = [[False for y in range(self._cols)] for x in range(self._rows)]
+        tmp = 0
+        while True:
+            if self._board2[0][tmp] != "BLACK":
+                matrice[0][tmp] = True
+                tot = self.checkcontinuity(0, tmp, matrice)
+                print(tot, totale)
+                break
+            tmp += 1
+        if tot!=totale:
+            return False
+
         return True
-        # return False
 
     def message(self) -> str:
         return "Puzzle solved!"

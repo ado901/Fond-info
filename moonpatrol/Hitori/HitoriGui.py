@@ -43,9 +43,12 @@ class BoardGameGui:
                 center = x * W + W // 2, y * H + H // 2
                 x1, y2 = center
                 if value[-1] == "#":
-                    g2d.fill_rect((x1, y2, W // 2, H // 2))
+                    g2d.fill_rect((x1 - 20, y2 - 20, W, H))
                 if value[-1] == "!":
                     g2d.fill_circle(center, H // 2)
+                    g2d.set_color((255, 255, 255))
+                    g2d.fill_circle(center, H // 2 - 1)
+                g2d.set_color((0, 0, 0))
                 g2d.draw_text_centered(value[:-1], center, H // 2)
         g2d.update_canvas()
         if self._game.finished():
