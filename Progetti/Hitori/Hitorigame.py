@@ -40,7 +40,7 @@ def console_play(game: BoardGame):
 
 
 class HitoriGame(BoardGame):
-    def __init__(self, side=8, level=4):
+    def __init__(self, side=8):
         self._cols, self._rows = side, side
         self._board = []
         with open("matrice.txt") as myfile:
@@ -63,9 +63,9 @@ class HitoriGame(BoardGame):
                 self._board2[y][x] = "BLACK"
             else:
                 self._board2[y][x] = "CLEAR"
-            for i in self._board2:
+            '''for i in self._board2:
                 print(i)
-            print()
+            print()'''
 
     def flag_at(self, x: int, y: int):
         if self._board2[y][x] == "CLEAR":
@@ -80,17 +80,17 @@ class HitoriGame(BoardGame):
         return str(self._board[y][x]) + ' '
 
     def checkcontinuity(self, y, x, matrice):
-        count = 1
+        count = 1 #in partenza il contatore sicuramente è 1 per entrare nella funzione
         print(self._board[y][x], end=' ')
         for dx, dy in ((0, -1), (1, 0),
                        (0, 1), (-1, 0)):
             x1, y1= x+dx, y+dy
             if 0 <= x1 < self._cols and 0 <= y1 < self._rows:
 
-                if self._board2[y1][x1] != "BLACK" and not matrice[y1][x1]:
+                if self._board2[y1][x1] != "BLACK" and not matrice[y1][x1]: #se la matrice adiacente a quella di partenza è bianca e non è stata ancora controllata
                     print(self._board[y1][x1], y1, x1)
                     matrice[y1][x1] = True
-                    count += self.checkcontinuity(y1, x1, matrice)
+                    count += self.checkcontinuity(y1, x1, matrice) #controllo tramite ricorsione anche quella adiacente e lo metto nel contatore
         return count
 
     def finished(self) -> bool:
@@ -98,30 +98,30 @@ class HitoriGame(BoardGame):
         for y in range(self._rows):
             for x in range(self._cols):
                 val = self._board[y][x]
-                if self._board2[y][x] != "BLACK":
+                if self._board2[y][x] != "BLACK": #se trovo cella non annerita controllo che nelle righe e nella colonna non ci sia lo stesso numero
                     totale+=1
                     for i in range(self._cols):
                         if i != x and self._board[y][i] == val and self._board2[y][i] != "BLACK":
                             return False
                     for i in range(self._rows):
-
                         if i != y and self._board[i][x] == val and self._board2[i][x] != "BLACK":
                             return False
 
-                if self._board2[y][x] == "BLACK":
+                if self._board2[y][x] == "BLACK": #controllo che le celle annerite non siano adiacenti
                     for dx, dy in ((0, -1), (1, 0),
                                    (0, 1), (-1, 0)):
                         if 0 <= x + dx < self._cols and 0 <= y + dy < self._rows:
                             if self._board2[y + dy][x + dx] == "BLACK":
                                 return False
-        matrice = [[False for y in range(self._cols)] for x in range(self._rows)]
+        matrice = [[False for y in range(self._cols)] for x in range(self._rows)] #matrice temporanea per controllare la continuità
         tmp = 0
-        while True:
+        boolean=False
+        while not boolean: #Controllo prima cella che trovo bianca
             if self._board2[0][tmp] != "BLACK":
+                boolean=True
                 matrice[0][tmp] = True
                 tot = self.checkcontinuity(0, tmp, matrice)
                 print(tot, totale)
-                break
             tmp += 1
         if tot!=totale:
             return False
