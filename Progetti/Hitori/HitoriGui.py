@@ -4,10 +4,11 @@
 '''
 
 import g2d
-from Hitorigame import BoardGame
+from Hitorigame import *
 from time import time
 
 W, H = 40, 40
+larghezza, altezza = 10*W, 10*H
 LONG_PRESS = 0.5
 
 
@@ -27,6 +28,15 @@ class BoardGameGui:
                 self._game.flag_at(x, y)
             else:
                 self._game.play_at(x, y)
+            self.update_buttons()
+        elif g2d.key_pressed("Spacebar"):
+            self._game.circle()
+            self.update_buttons()
+        elif g2d.key_pressed("Enter"):
+            self._game.black()
+            self.update_buttons()
+        elif g2d.key_pressed("w"):
+            self._game.solve_recursive(0)
             self.update_buttons()
 
     def update_buttons(self):
@@ -54,9 +64,19 @@ class BoardGameGui:
         if self._game.finished():
             g2d.alert(self._game.message())
             g2d.close_canvas()
+        errore = self._game.wrong()
+
+        if len(errore) != 0:
+            testo = ''
+            for i in errore:
+                testo += i + ', '
+            g2d.alert(testo)
 
 
-def gui_play(game: BoardGame):
-    g2d.init_canvas((game.cols() * W, game.rows() * H))
+def gui_play(size):
+
+    g2d.init_canvas((int(size) * W, int(size) * H))
+
+    game= HitoriGame(size)
     ui = BoardGameGui(game)
     g2d.main_loop(ui.tick)

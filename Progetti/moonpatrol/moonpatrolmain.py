@@ -1,4 +1,4 @@
-from moonpatrol.moonpatrolgame import *
+from moonpatrolgame import *
 import os
 
 
